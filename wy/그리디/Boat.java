@@ -7,19 +7,16 @@ public class Boat {
 
         Arrays.sort(people);
         
-        boolean[] used = new boolean[people.length];
+        int i = 0;
+        int j = people.length - 1;
         int boatCount = 0;
         
-        for (int j = people.length - 1; j >= 0; j--) {
-            if (used[j]) continue;
-            used[j] = true;
-            
-            for (int i = 0; i < j; i++) {
-                if (!used[i] && people[i] + people[j] <= limit) {
-                    used[i] = true;
-                    break;
-                }
+        while (i <= j) {
+            if (people[i] + people[j] <= limit) {
+                i++;
             }
+            
+            j--;
             boatCount++;
         }
         
