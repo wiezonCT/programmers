@@ -1,3 +1,5 @@
+package org.example;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -11,22 +13,19 @@ class Solution {
     static final String CIRCLE = "O";
     static final String CROSS = "X";
 
+    static List<Node> nodes = new ArrayList<Node>();
+
     public static void main(String[] args) {
-        System.out.print(solution(8, 2, new String[]{"D 2","C","U 3","C","D 4","C","U 2","Z","Z"}));
+        System.out.print(solution(5, 2, new String[]{"U 5", "C", "C", "C", "C", "C", "C", "Z", "Z", "Z", "Z", "Z", "Z"}));
     }
 
     public static String solution(int n, int k, String[] cmd) {
-        List<Node> nodes = new ArrayList<>();
+        makeNodes(n);
 
-        nodes.add(new Node(-1, 1, 0, false));
-        for (int i = 1; i < n - 1; i++) {
-            nodes.add(new Node(i - 1, i + 1, i, false));
-        }
-        nodes.add(new Node(n - 2, -1, n - 1, false));
-
-        nodes = playCommand(nodes, k, cmd);
+        nodes = playCommand(nodes, n, k, cmd);
 
         StringBuilder answer = new StringBuilder();
+
         for (Node node : nodes) {
             if (node.isDeleted) {
                 answer.append(CROSS);
@@ -34,10 +33,19 @@ class Solution {
             }
             answer.append(CIRCLE);
         }
+
         return answer.toString();
     }
 
-    private static List<Node> playCommand(List<Node> nodes, int k, String[] cmd) {
+    private static void makeNodes(int n) {
+        nodes.add(new Node(-1, 1, 0, false));
+        for (int i = 1; i < n - 1; i++) {
+            nodes.add(new Node(i - 1, i + 1, i, false));
+        }
+        nodes.add(new Node(n - 2, -1, n - 1, false));
+    }
+
+    private static List<Node> playCommand(List<Node> nodes, int n, int k, String[] cmd) {
         Node cur = nodes.get(k);
         Stack<Integer> deleteStack = new Stack<>();
 
@@ -66,13 +74,17 @@ class Solution {
                     break;
 
                 case DELETE:
+                    if (deleteStack.size() == n) {
+                        break;
+                    }
+
                     cur.isDeleted = true;
                     deleteStack.push(cur.idx);
 
                     if (cur.next == -1) {
                         Node previous = cur;
 
-                        while (previous.isDeleted && previous.idx != 0) {
+                        while (previous.isDeleted && previous.idx != 0 && previous.previous != -1) {
                             previous = nodes.get(previous.previous);
                         }
 
@@ -82,10 +94,17 @@ class Solution {
                     }
 
                     Node next = cur;
-                    while (next.isDeleted && next.idx != 0) {
-                        next = nodes.get(next.next);
+                    Node previous = cur;
+
+                    while (next.isDeleted && next.idx != n - 1 && next.next != -1) {
+                        next = nodes.get(nodes.get(next.next).idx);
                     }
 
+                    while (previous.isDeleted && previous.idx != 0 && previous.previous != -1) {
+                        previous = nodes.get(nodes.get(previous.previous).idx);
+                    }
+
+                    previous.next = cur.next;
                     next.previous = cur.previous;
                     cur = next;
                     break;
@@ -107,6 +126,12 @@ class Solution {
                         nextNode.previous = revertNode.idx;
                     }
             }
+
+            System.out.println(c);
+            cur.print();
+            for (Node node : nodes) {
+                node.print();
+            }
         }
 
         return nodes;
@@ -122,6 +147,10 @@ class Solution {
             this.next = next;
             this.idx = idx;
             this.isDeleted = isDeleted;
+        }
+
+        void print() {
+            System.out.printf("%d %d %d %b\n", previous, next, idx, isDeleted);
         }
     }
 }
