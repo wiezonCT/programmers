@@ -2,6 +2,7 @@ package wy.kakao;
 
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
@@ -18,7 +19,11 @@ public class 표편집 {
     "Z", "Z"};
 
         //init
-        char[] result = resultInit(size);
+        java.util.LinkedList<String> linkedList = new java.util.LinkedList<>();
+
+        for (int i = 0; i < size; i++) {
+            linkedList.add("O");
+        }
 
         Stack<Integer> stack = new Stack();
         List<Integer> removeIndex = new ArrayList<>();
@@ -34,9 +39,11 @@ public class 표편집 {
                     cur += Integer.parseInt(split[1]);
                     break;
                 case UNDO:
-                    stack.pop();
+                    Integer index = stack.pop();
+                    linkedList.add(index, "O");
                     break;
                 case REMOVE:
+                    linkedList.remove(cur);
                     stack.push(cur);
                     break;
             }    
@@ -47,17 +54,10 @@ public class 표편집 {
         }
         
         for (Integer index : removeIndex) {
-            result[index] = 'X';
+            linkedList.add(index, "X");
         }
 
-        System.out.println(result);
+        System.out.println(linkedList);
     }
-
-    private static char[] resultInit(int size) {
-        char[] arr = new char[size];
-        for (int i = 0; i < size; i++) {
-            arr[i] = 'O';
-        }
-        return arr;
-    }
+    
 }
